@@ -8,7 +8,7 @@
 
 对当前学习目标，局部最优是“把一个章节学透”，全局目标却是“尽快形成能解决工业视觉问题的完整能力”。因此路线使用四次回环：
 
-1. **先跑通现代 CV / Deep Learning**：快速知道 classification、detection、segmentation 到底在做什么，建立正反馈。
+1. **先跑通现代 CV / Deep Learning**：快速知道 classification、segmentation 到底在做什么，建立正反馈；detection 只有在 box 任务需要时插入。
 2. **带着已经遇到的问题回填 Gonzalez**：Resize 后学 sampling，Conv2d 后学 convolution，mask 后处理后学 morphology。
 3. **进入真正的工业视觉系统**：光源、镜头、标定、定位、测量，把算法放回真实成像链路。
 4. **再做鲁棒性、工业相机、部署与综合系统**：从 demo 走向可验证的生产式 pipeline。
@@ -17,15 +17,16 @@ Fourier / restoration 不再挡在主线前面；只有真实问题需要时才�
 
 ## 全局学习纪律
 
-- **代码先于证明**：第一遍数学只学到能解释代码和失败现象。
+- **结果和代码先于证明**：第一遍先跑起来、改参数、制造失败，再让数学解释已经见过的现象。
 - **每个 Lab 都服务于一个阶段性系统**，不要为了单个指标把工程目标忘掉。
 - **遇到理论阻塞时只做微型回填**：查 30–120 分钟，把当前代码继续跑通；不要临时展开整章。
+- **不设置独立数学前置线**：数学只由当前视觉问题触发；第一次黑盒可以先用，第二次再次遇到必须拆开一次。
 - **每阶段都必须有出口作品**：能运行、能测量、能展示失败案例；不是“读完了”就算完成。
 - **同一问题至少比较两类方案**：例如 rule-based vs learned model、imaging fix vs algorithm fix，避免工具崇拜。
 
 ## 阅读规则
 
-- **必读**：完成该 Lab 前读到“能解释代码”为止。
+- **必读**：先把最小结果跑出来，再读到“能解释代码和失败现象”为止。
 - **选读**：知道有这个工具；遇到需求再深入。
 - **回查**：做项目时遇到现象再回来查，不要求第一次记住。
 - 页码以版本不同可能有差异，因此主要以章节 / 小节号和标题定位。
@@ -40,7 +41,7 @@ Fourier / restoration 不再挡在主线前面；只有真实问题需要时才�
 | 阶段 | 推荐 Lab | 阶段出口 |
 |---|---|---|
 | S0 工程起点 | A00 | 可重复实验框架 |
-| S1 先进入现代 CV | A23 → A24 → A25 → A26 → A27 | CNN + 分类 + 检测 + 分割的完整直觉 |
+| S1 先进入现代 CV | A23 → A24 → A25 → A27；A26 按需 | CNN + 分类 + 分割的第一轮完整直觉；box 任务再补检测 |
 | S2 回填图像处理 | A01 → A02 → A03 → A04 → A05 → A06 → A07 → A08 → A09 → A10 → A11 | 能解释并实现传统预处理 / 分割 / 测量基础 |
 | S2.5 传统 ML 对照 | A22 | 手工特征与 learned feature 能做实验比较 |
 | S3 工业成像与测量 | A12 → A13 → A14 → A15 → A16 → A17 → A18 | Classical Industrial Inspector |
@@ -129,12 +130,18 @@ optimizer.step()
 - feature map
 - receptive field 的直觉
 
+**先做 20～40 分钟 fixed-kernel 热身，不读公式**
+
+- 任选一张图，用 OpenCV / NumPy 直接跑 box blur、Sobel X、Laplacian 三个 3×3 kernel；
+- 只观察三个问题：kernel 改一个数会怎样、同一个 kernel 为什么能扫整张图、输出为什么仍然保留空间位置；
+- 不在这里推 convolution/correlation，也不手写滑窗；这些留给 A04。
+
 **作业结果**
 
 - 自己写一个小 CNN。
 - 打印每层 tensor shape。
 - 可视化第一层 kernel / activation。
-- 先把 `Conv2d` 当作 learnable 3×3 filter 使用，并把“它底层到底怎么算？”记录成待回填问题；完成 A04 后再回来补上 fixed kernel 与 learnable kernel 的联系。
+- 把 `Conv2d` 先当作“热身实验里的 fixed kernel 变成可学习参数”，并把“它底层到底怎么算？”记录成待回填问题；完成 A04 后再回来补 correlation / convolution、padding 和 separable kernel。
 
 ---
 
@@ -161,7 +168,7 @@ optimizer.step()
 
 ---
 
-## A26 — Object Detection
+## A26 — Object Detection（按需插入，不作为 S1 强制前置）
 
 **教材**
 
@@ -182,6 +189,14 @@ optimizer.step()
 - **S1 第一遍**优先使用已有标注的小型公开数据 / subset 跑通 pretrained detector fine-tuning，不要先花一周做数据标注。
 - 理解 box、IoU、confidence、NMS、precision / recall，并保存失败案例。
 - 在进入最终项目之前，再升级成自己标注的“零件 / 螺丝 / 元件”数据集并做完整 PR / mAP 评估。
+
+**触发条件**
+
+- 任务天然输出多个目标的 bounding boxes；
+- segmentation 明显过重，而 classification 又无法表达目标位置；
+- 真实项目或最终 A32 需要 detector。
+
+如果当前任务只需要 OK/NG classification 或 pixel-level defect mask，可以先跳过 A26，避免为了课程完整性引入额外标注、NMS、mAP 等概念负担。
 
 ---
 
@@ -957,9 +972,9 @@ calibration
 - Chapter 10 graph cuts 等高级传统分割：需要时回查
 - Chapter 12 深度网络完整反向传播推导：第一轮不要求推完
 
-## CVAA 暂缓
+## CVAA 暂缓 / 按需回查
 
-- Chapter 4 Model fitting and optimization：先用到再回查
+- Chapter 4 Model fitting and optimization：不单独开数学课程；当 least squares、RANSAC、regularization、energy minimization 真正阻塞当前 Lab 时，只读对应小节
 - Chapter 9 Motion estimation：视频 / tracking 项目再学
 - Chapter 10 Computational photography：只选 noise / calibration 等相关内容
 - Chapter 11 SfM and SLAM：除 camera calibration 外暂缓
@@ -975,7 +990,8 @@ calibration
 |---|---|---|
 | Week 1 | A00 + PyTorch 最小环境 | 可重复实验框架 |
 | Week 2–4 | A23–A24 | 能训练、调试并解释一个 CNN |
-| Week 5–8 | A25–A27 | 工业风格分类 + detection + segmentation 初体验 |
+| Week 5–7 | A25 + A27 | 工业风格分类 + segmentation 初体验 |
+| 任意阶段按需 | A26 | 真实任务需要 bounding box 时再插入 detection |
 | Week 9–14 | A01–A06 | 用 Gonzalez 解释 Resize / histogram / convolution / denoise / edge |
 | Week 15–19 | A07–A11 + A22 | 传统分割、形状分析、颜色、ML 对照 |
 | Week 20–26 | A12–A18 | 成像、标定、定位、毫米级测量与 Classical Inspector |

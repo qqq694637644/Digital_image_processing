@@ -6,7 +6,7 @@
 
 ```text
 A00
-→ A23 → A24 → A25 → A26 → A27
+→ A23 → A24 → A25 → A27
 → A01 → A02 → A03 → A04 → A05 → A06 → A07 → A08 → A09 → A10 → A11
 → A22
 → A12 → A13 → A14 → A15 → A16 → A17 → A18
@@ -15,6 +15,22 @@ A00
 ```
 
 `A19 → A20 → A21` 是按需的频域 / restoration 支线，不作为主线前置。
+`A26` 也是按需插入：当前任务需要 bounding box 时再做，不要求为了“学全现代 CV”阻塞主线。
+
+## 每个作业的实际推进顺序
+
+不要先读完整理论再允许自己写代码。默认顺序是：
+
+```text
+看一个可工作的结果
+  → 跑参考实现
+  → 改参数 / 制造失败
+  → 自己实现一个核心步骤
+  → 这时再读对应公式 / 补当前缺的数学
+  → synthetic + noisy + real 验证
+```
+
+数学是由当前作业触发的临时工具，不是独立前置课程。第一次遇到库函数可以先把它当黑盒；如果后面第二次又依赖同一个黑盒，就必须安排一次 from-scratch / derivation / 对照实验把它拆开。
 
 ## 通用提交格式
 
@@ -101,6 +117,16 @@ notes.md       # 失败案例与读书笔记
 
 ## A24 — CNN from Scratch
 
+### 20～40 分钟 fixed-kernel 热身
+
+在写 CNN 之前，任选一张图片，直接使用现成函数跑三个 3×3 kernel：
+
+- box blur；
+- Sobel X；
+- Laplacian。
+
+这一小步只要求“看见 kernel 改变 → 输出 feature map 改变”，不要求先推 convolution/correlation，也不要求手写滑窗。完整底层计算留到 A04。
+
 ### 任务
 
 在 MNIST/CIFAR-10 或一个很小的自定义图像集上：
@@ -121,7 +147,7 @@ notes.md       # 失败案例与读书笔记
 
 notes 写清：
 
-- `Conv2d` 可以先直觉理解为 learnable kernel；把具体卷积计算标记为待回填问题，完成 A04 后再补 fixed kernel 与 learnable kernel 的关系；
+- `Conv2d` 可以先直觉理解为“fixed kernel 变成 learnable kernel”；把具体滑窗计算标记为待回填问题，完成 A04 后再补 correlation / convolution 与 learnable kernel 的关系；
 - stride/padding 改变 shape 的规则；
 - 为什么不能把 training accuracy 当最终结果。
 
@@ -155,7 +181,7 @@ notes 写清：
 
 ---
 
-## A26 — Object Detection
+## A26 — Object Detection（按需）
 
 ### S1 第一遍：快速跑通
 
@@ -169,6 +195,8 @@ notes 写清：
 - IoU / confidence / precision / recall 的基本评估。
 
 第一遍只要求你真正理解：`image -> boxes + classes + scores`，以及 box 为什么会错。
+
+如果当前路线只需要 OK/NG classification 或 defect mask，可以先跳过本作业；等真实任务需要 bounding box，或 A32 的方案明确需要 detector 时再回来。
 
 ### S3/S4 后再升级
 
