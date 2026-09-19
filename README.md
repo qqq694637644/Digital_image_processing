@@ -67,26 +67,31 @@ C. 真实图片 / 工业公开数据
 
 这样做的原因很简单：Computer Vision 最危险的情况不是代码报错，而是程序输出“看起来合理”，其实算法没有真正工作。
 
-## 路线总览
+## 路线总览：不是按教材，也不是按 A 编号线性推进
 
-| Phase | 主题 | 主要结果 |
+`Axx` 只是稳定的 Lab ID。真正学习顺序采用 **先现代 CV → 再回填图像处理 → 再进入工业系统 → 最后生产化** 的螺旋路线：
+
+| Stage | 推荐 Lab | 主要结果 |
 |---|---|---|
-| P0 | 工程环境与实验协议 | 可重复运行的视觉实验仓库 |
-| P1 | 图像、灰度、直方图、空间滤波 | 图像增强与预处理工具箱 |
-| P2 | 阈值、形态学、轮廓、颜色 | 第一套传统工业检测流水线 |
-| P3 | 成像、几何、标定、匹配、测量 | 定位、对位、毫米级测量思维 |
-| P4 | Fourier、噪声、恢复 | 会处理周期噪声、模糊和退化 |
-| P5 | 机器学习与深度学习 | CNN / Transfer Learning 基础 |
-| P6 | 检测、分割、异常检测 | 现代工业 AI 检测能力 |
-| P7 | 工业相机、评估、部署 | GenICam / 触发 / ONNX / 生产化 |
-| P8 | 综合项目 | Classical + Deep Learning 混合视觉系统 |
+| S0 | A00 | 可重复运行的视觉实验仓库 |
+| S1 先进入现代 CV | A23 → A24 → A25 → A26 → A27 | CNN、分类、检测、分割的整体直觉与第一轮正反馈 |
+| S2 带着问题补基础 | A01 → A02 → A03 → A04 → A05 → A06 → A07 → A08 → A09 → A10 → A11 | 用 Gonzalez 解释已经在模型和图像中见过的现象 |
+| S2.5 对照传统 ML | A22 | 手工特征与 learned feature 的实际比较 |
+| S3 工业成像与测量 | A12 → A13 → A14 → A15 → A16 → A17 → A18 | 光学、标定、定位、对位、尺寸测量与 Classical Inspector |
+| S4 工业 AI 硬化 | A28 → A29 | anomaly detection、数据与鲁棒性 |
+| S5 生产式集成 | A30 → A31 → A32 | 工业采集、ONNX、Hybrid Inspector |
+| 按需支线 | A19 → A20 → A21 | Fourier、周期噪声与 restoration；不作为主线前置 |
 
-完整顺序见 [ROADMAP.md](ROADMAP.md)，所有作业与验收标准见 [ASSIGNMENTS.md](ASSIGNMENTS.md)。
+这套顺序的原则是：**先让一个视觉系统跑起来，再用教材解释它；先形成全局能力，再补局部理论深度。**
+
+完整顺序与教材映射见 [ROADMAP.md](ROADMAP.md)，作业与验收标准见 [ASSIGNMENTS.md](ASSIGNMENTS.md)，执行进度用 [PROGRESS.md](PROGRESS.md) 跟踪。
 
 ## 学习范围取舍
 
 ### 主线：现在要学
 
+- PyTorch tensor / training loop / CNN / transfer learning
+- classification / object detection / segmentation
 - 图像采集、sampling、quantization、pixel / channel / dtype
 - intensity transform、histogram
 - correlation / convolution、Gaussian、median、bilateral
@@ -96,16 +101,14 @@ C. 真实图片 / 工业公开数据
 - camera model、lens distortion、calibration、homography
 - template matching、SIFT / ORB、feature matching、RANSAC
 - measurement / gauging / repeatability
-- Fourier 的工程直觉、periodic noise、基础 restoration
-- PyTorch、CNN、transfer learning
-- object detection、semantic / instance segmentation
 - industrial anomaly detection
 - dataset split、metrics、false accept / false reject、robustness
 - industrial camera concepts、GenICam、trigger / exposure / pixel format
 - ONNX Runtime 与部署性能
 
-### 第二轮或遇到需求再学
+### 按需支线或第二轮再学
 
+- Fourier 的工程直觉、periodic noise、基础 restoration
 - Wavelet 的完整理论
 - 图像压缩编码细节
 - Graph Cut / MRF 的完整推导
@@ -165,17 +168,21 @@ labs/A03_histogram_matching/
 - Milestone：1～2 周。
 - 整条主线：约 6～9 个月兼职学习；有时间可压缩，但不要跳过实验和失败分析。
 
-## 三个关键里程碑
+## 四个关键里程碑
 
-### Milestone 1 — Classical Inspector
+### Milestone 1 — Modern CV First Win
+
+完成一个最小 CNN，再把真实小型工业数据做成 transfer learning 分类；随后至少各跑通一次 detection 和 segmentation。目标是先知道现代 CV 的输入、输出、训练、指标和失败模式。
+
+### Milestone 2 — Classical Inspector
 
 固定工位零件检测：自动定位 → 阈值 / 形态学 → 轮廓 → 数量 / 尺寸 → OK/NG。
 
-### Milestone 2 — AI Defect Inspector
+### Milestone 3 — AI Defect Inspector
 
 基于公开工业数据完成：分类 + 缺陷分割 + anomaly detection，对比优缺点和数据需求。
 
-### Milestone 3 — Production-like Hybrid Inspector
+### Milestone 4 — Production-like Hybrid Inspector
 
 模拟生产系统：
 
@@ -201,4 +208,5 @@ labs/A03_histogram_matching/
 
 - [ROADMAP.md](ROADMAP.md) — 教材小节 → 学习目标 → 作业顺序
 - [ASSIGNMENTS.md](ASSIGNMENTS.md) — 每个作业的完整要求与验收条件
+- [PROGRESS.md](PROGRESS.md) — 按螺旋顺序执行的 checklist 与阶段出口
 - [REFERENCES.md](REFERENCES.md) — 教材与当前官方补充资料

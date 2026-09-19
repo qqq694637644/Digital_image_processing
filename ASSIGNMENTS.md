@@ -1,6 +1,20 @@
 # Assignments — 工业机器视觉完整作业集
 
-与 [ROADMAP.md](ROADMAP.md) 的 A00–A32 一一对应。
+这里的 `Axx` 是稳定作业 ID，**不要按编号从 A00 一路做到 A32**。作业已经按推荐的螺旋学习顺序重新排列；完整理由见 [ROADMAP.md](ROADMAP.md)。
+
+推荐主线：
+
+```text
+A00
+→ A23 → A24 → A25 → A26 → A27
+→ A01 → A02 → A03 → A04 → A05 → A06 → A07 → A08 → A09 → A10 → A11
+→ A22
+→ A12 → A13 → A14 → A15 → A16 → A17 → A18
+→ A28 → A29
+→ A30 → A31 → A32
+```
+
+`A19 → A20 → A21` 是按需的频域 / restoration 支线，不作为主线前置。
 
 ## 通用提交格式
 
@@ -27,7 +41,7 @@ notes.md       # 失败案例与读书笔记
 
 除非作业特别说明，测试顺序统一为：**clean synthetic → noisy synthetic → real image**。
 
----
+# S0 — 工程起点
 
 ## A00 — Image Inspector
 
@@ -54,6 +68,163 @@ notes.md       # 失败案例与读书笔记
 - README 解释 OpenCV BGR 与常见 RGB 的差异。
 
 ---
+
+# S1 — 先进入现代 CV / Deep Learning
+
+## A23 — MLP / Training Loop
+
+### 任务
+
+用 PyTorch 写：
+
+- Dataset/DataLoader；
+- MLP；
+- loss；
+- optimizer；
+- train/val loop；
+- checkpoint。
+
+### 实验
+
+故意制造：
+
+- learning rate 太大；
+- learning rate 太小；
+- overfitting；
+- no normalization。
+
+### 验收
+
+每种异常训练必须保存 loss curve，并解释症状。
+
+---
+
+## A24 — CNN from Scratch
+
+### 任务
+
+在 MNIST/CIFAR-10 或一个很小的自定义图像集上：
+
+- `Conv2d`；
+- ReLU；
+- pooling；
+- classifier。
+
+打印每层 tensor shape。
+
+### 可视化
+
+- 第一层 weights；
+- 至少 4 个 feature maps。
+
+### 验收
+
+notes 写清：
+
+- `Conv2d` 可以先直觉理解为 learnable kernel；把具体卷积计算标记为待回填问题，完成 A04 后再补 fixed kernel 与 learnable kernel 的关系；
+- stride/padding 改变 shape 的规则；
+- 为什么不能把 training accuracy 当最终结果。
+
+---
+
+## A25 — Industrial OK/NG Transfer Learning
+
+### 数据
+
+任选公开/自采小型二分类工业样式数据。
+
+### 任务
+
+比较：
+
+1. small CNN from scratch；
+2. pretrained backbone + frozen features；
+3. fine-tune。
+
+### 强制规则
+
+如果数据来自视频/连拍，按物件或批次切分；禁止近邻帧泄漏到不同 split。
+
+### 验收
+
+- confusion matrix；
+- precision / recall / F1；
+- inference latency；
+- 20 张 false positive / false negative gallery；
+- 写出在质量检测场景你更在意哪一种错误及原因。
+
+---
+
+## A26 — Object Detection
+
+### S1 第一遍：快速跑通
+
+优先使用**已有标注**的小型公开数据集或官方 tutorial 数据，不要把第一遍时间消耗在大量手工标注上。
+
+完成：
+
+- 读取 box annotation；
+- pretrained detector fine-tuning；
+- inference visualization；
+- IoU / confidence / precision / recall 的基本评估。
+
+第一遍只要求你真正理解：`image -> boxes + classes + scores`，以及 box 为什么会错。
+
+### S3/S4 后再升级
+
+自己采集或整理工业小数据集，目标至少 2 类、约 200 个实例级标注（数据特别难可酌情减少，但必须说明）。
+
+完成：
+
+- annotation；
+- train/val/test；
+- robustness 分组测试。
+
+### 验收
+
+- IoU-based evaluation；
+- precision/recall；
+- small / occluded / rotated / bright-dark 分组分析；
+- 不只给一张“预测成功”的图。
+
+---
+
+## A27 — Defect Segmentation + Measurement
+
+### S1 第一遍：先理解 pixel mask
+
+优先使用已有 mask 的小型公开数据或自己生成 synthetic defect mask，先跑通：
+
+- segmentation Dataset/DataLoader；
+- model train/inference；
+- probability map → binary mask；
+- Dice / IoU；
+- pixel-level defect area。
+
+### S2/S3 后再升级
+
+准备更接近工业现场的 binary defect masks，训练/使用 segmentation model。
+
+后处理：
+
+```text
+predicted probability
+ -> threshold
+ -> morphology
+ -> connected components
+ -> area / length / width
+```
+
+### 验收
+
+- Dice / IoU；
+- pixel-level false positive / false negative；
+- 第一遍完成 pixel-level measurement；完成 A14 calibration 后再转成物理尺寸；
+- 完成 A07/A08 后再回访本作业，补上“传统 threshold/morphology pipeline vs DL segmentation”的对比。
+
+---
+
+# S2 — 带着问题回填 Gonzalez
 
 ## A01 — Sampling / Quantization Lab
 
@@ -361,6 +532,36 @@ gray -> threshold -> morphology -> contours/components
 
 ---
 
+# S2.5 — 传统 ML 对照
+
+## A22 — Handcrafted Feature + Classical ML
+
+### 任务
+
+基于 A09 的形状特征：
+
+```text
+area, perimeter, circularity, aspect_ratio,
+mean_intensity, std_intensity, ...
+```
+
+训练：
+
+- Logistic Regression；
+- SVM；
+- Random Forest。
+
+### 验收
+
+- 固定 train/val/test；
+- confusion matrix；
+- 与 rule-based baseline 比较；
+- 展示至少 10 个 hardest samples。
+
+---
+
+# S3 — 工业成像、定位与测量
+
 ## A12 — Lighting Experiment
 
 ### 任务
@@ -531,222 +732,7 @@ matches -> homography -> RANSAC -> inliers -> warp/alignment
 
 ---
 
-## A19 — Spectrum Explorer
-
-### 任务
-
-- 生成 sinusoidal grating：横向、纵向、45°、不同频率；
-- 计算 2-D FFT；
-- `fftshift`；
-- 显示 log magnitude 与 phase；
-- 手动 low-pass/high-pass mask 并 inverse FFT。
-
-### 验收
-
-能从频谱图指出条纹方向/频率对应位置，并说明“高频 = 边缘”只是近似直觉，不是所有高频都是有效边缘。
-
----
-
-## A20 — Periodic Noise Removal
-
-### 任务
-
-给 clean image 加两组 sinusoidal noise，形成已知频谱 peak。
-
-- 观察 spectrum；
-- 构造 notch reject mask；
-- inverse FFT；
-- 对比 spatial blur baseline。
-
-### 验收
-
-- PSNR/SSIM before/after；
-- 高频细节损失分析；
-- 说明为什么 Gaussian blur 不是周期噪声的理想方案。
-
----
-
-## A21 — Restoration Benchmark
-
-### 任务
-
-统一框架测试：
-
-- Gaussian noise；
-- impulse noise；
-- periodic noise；
-- mild motion blur（选做）。
-
-算法至少覆盖：
-
-- Gaussian；
-- median；
-- bilateral；
-- notch；
-- Wiener（可直接使用库或自己实现简化版）。
-
-### 验收
-
-输出 `noise_type × algorithm` 指标矩阵与推荐表。
-
----
-
-## A22 — Handcrafted Feature + Classical ML
-
-### 任务
-
-基于 A09 的形状特征：
-
-```text
-area, perimeter, circularity, aspect_ratio,
-mean_intensity, std_intensity, ...
-```
-
-训练：
-
-- Logistic Regression；
-- SVM；
-- Random Forest。
-
-### 验收
-
-- 固定 train/val/test；
-- confusion matrix；
-- 与 rule-based baseline 比较；
-- 展示至少 10 个 hardest samples。
-
----
-
-## A23 — MLP / Training Loop
-
-### 任务
-
-用 PyTorch 写：
-
-- Dataset/DataLoader；
-- MLP；
-- loss；
-- optimizer；
-- train/val loop；
-- checkpoint。
-
-### 实验
-
-故意制造：
-
-- learning rate 太大；
-- learning rate 太小；
-- overfitting；
-- no normalization。
-
-### 验收
-
-每种异常训练必须保存 loss curve，并解释症状。
-
----
-
-## A24 — CNN from Scratch
-
-### 任务
-
-在 MNIST/CIFAR-10 或一个很小的自定义图像集上：
-
-- `Conv2d`；
-- ReLU；
-- pooling；
-- classifier。
-
-打印每层 tensor shape。
-
-### 可视化
-
-- 第一层 weights；
-- 至少 4 个 feature maps。
-
-### 验收
-
-notes 写清：
-
-- A04 fixed kernel 与 CNN learnable kernel 的关系；
-- stride/padding 改变 shape 的规则；
-- 为什么不能把 training accuracy 当最终结果。
-
----
-
-## A25 — Industrial OK/NG Transfer Learning
-
-### 数据
-
-任选公开/自采小型二分类工业样式数据。
-
-### 任务
-
-比较：
-
-1. small CNN from scratch；
-2. pretrained backbone + frozen features；
-3. fine-tune。
-
-### 强制规则
-
-如果数据来自视频/连拍，按物件或批次切分；禁止近邻帧泄漏到不同 split。
-
-### 验收
-
-- confusion matrix；
-- precision / recall / F1；
-- inference latency；
-- 20 张 false positive / false negative gallery；
-- 写出在质量检测场景你更在意哪一种错误及原因。
-
----
-
-## A26 — Object Detection
-
-### 任务
-
-自己采集或使用公开数据，至少 2 类、200 个实例级标注（数据特别难可酌情减少，但必须说明）。
-
-完成：
-
-- annotation；
-- train/val/test；
-- pretrained detector fine-tuning；
-- inference visualization。
-
-### 验收
-
-- IoU-based evaluation；
-- precision/recall；
-- small / occluded / rotated / bright-dark 分组分析；
-- 不只给一张“预测成功”的图。
-
----
-
-## A27 — Defect Segmentation + Measurement
-
-### 任务
-
-准备 binary defect masks，训练/使用 segmentation model。
-
-后处理：
-
-```text
-predicted probability
- -> threshold
- -> morphology
- -> connected components
- -> area / length / width
-```
-
-### 验收
-
-- Dice / IoU；
-- pixel-level false positive / false negative；
-- defect physical-size measurement（有 calibration 时转 mm）；
-- 传统 threshold pipeline vs DL segmentation 对比。
-
----
+# S4 — 工业 AI 硬化
 
 ## A28 — Industrial Anomaly Detection
 
@@ -798,6 +784,8 @@ predicted probability
 - 给出至少 3 个改进方案，并区分：采集改进 / 数据改进 / 模型改进。
 
 ---
+
+# S5 — 生产式集成
 
 ## A30 — FrameSource / Industrial Camera Architecture
 
@@ -951,3 +939,65 @@ OK / NG + reason + metrics
 10. 下一版最值得改的三件事
 
 如果这 10 项都能给出，你已经不是“会调 OpenCV API / 会跑模型”，而是在用工业机器视觉工程的方式解决问题。
+
+# Need-driven Side Quest — 频域与恢复
+
+## A19 — Spectrum Explorer
+
+### 任务
+
+- 生成 sinusoidal grating：横向、纵向、45°、不同频率；
+- 计算 2-D FFT；
+- `fftshift`；
+- 显示 log magnitude 与 phase；
+- 手动 low-pass/high-pass mask 并 inverse FFT。
+
+### 验收
+
+能从频谱图指出条纹方向/频率对应位置，并说明“高频 = 边缘”只是近似直觉，不是所有高频都是有效边缘。
+
+---
+
+## A20 — Periodic Noise Removal
+
+### 任务
+
+给 clean image 加两组 sinusoidal noise，形成已知频谱 peak。
+
+- 观察 spectrum；
+- 构造 notch reject mask；
+- inverse FFT；
+- 对比 spatial blur baseline。
+
+### 验收
+
+- PSNR/SSIM before/after；
+- 高频细节损失分析；
+- 说明为什么 Gaussian blur 不是周期噪声的理想方案。
+
+---
+
+## A21 — Restoration Benchmark
+
+### 任务
+
+统一框架测试：
+
+- Gaussian noise；
+- impulse noise；
+- periodic noise；
+- mild motion blur（选做）。
+
+算法至少覆盖：
+
+- Gaussian；
+- median；
+- bilateral；
+- notch；
+- Wiener（可直接使用库或自己实现简化版）。
+
+### 验收
+
+输出 `noise_type × algorithm` 指标矩阵与推荐表。
+
+---
