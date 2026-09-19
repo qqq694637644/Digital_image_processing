@@ -20,6 +20,8 @@ Rafael C. Gonzalez, Richard E. Woods.
 - Chapter 11 — Feature Extraction
 - Chapter 12 — Image Pattern Classification
 
+这本书是**按问题回查的图像处理底座**，不是要求从第 1 页线性读到最后一页。先在 Lab 里看到现象，再回到对应章节解释它。
+
 出版社页面：
 
 - https://www.pearson.com/en-gb/subject-catalog/p/digital-image-processing-global-edition/P200000004313
@@ -38,6 +40,8 @@ Richard Szeliski.
 - Chapter 8 — Image Alignment and Stitching（只取 alignment/RANSAC）
 - Chapter 10 — Computational Photography（选择性）
 - Chapter 11 — 只取 camera calibration 相关内容
+
+这本书主要作为 **Computer Vision 全局地图 + 真实问题索引**。Chapter 4 等数学/优化内容按当前项目触发，不单独设为前置数学课程。
 
 作者官方页面：
 
@@ -90,7 +94,7 @@ Machine vision inspection / imaging foundation：
 
 - https://www.automate.org/vision/blogs/machine-vision-inspection-tools-of-the-trade
 
-这些资料支持路线中把 **lighting / optics / FOV / resolution / contrast** 放在算法之前，而不是只学 OpenCV 和神经网络。
+这些资料用于在工业项目出现成像问题时优先检查 **lighting / optics / FOV / resolution / contrast**，避免把本来应该通过采集解决的问题一律推给 OpenCV 或神经网络。
 
 ---
 

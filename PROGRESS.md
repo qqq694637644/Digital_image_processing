@@ -21,8 +21,8 @@
 - [ ] A23 PyTorch / MLP / training loop
 - [ ] A24 CNN from scratch
 - [ ] A25 Industrial OK/NG transfer learning
-- [ ] A26 Object detection
 - [ ] A27 Defect segmentation + measurement
+- [ ] A26 Object detection（按需：任务需要 bounding box 时再插入）
 
 ### Exit Gate
 
@@ -30,12 +30,12 @@
 
 - [ ] `tensor → model → prediction → loss → backward → optimizer` 的完整训练链路
 - [ ] 能读懂主要 tensor shape
-- [ ] 能区分 classification / detection / segmentation 的输入输出
+- [ ] 能区分 classification / segmentation 的输入输出；做过 A26 时再补 detection
 - [ ] 至少一个工业风格数据集完成 train/val/test
 - [ ] 至少保存 10 个模型失败案例，而不是只展示成功图
 - [ ] 能解释 overfit、data leakage、precision / recall / IoU 的基本含义
 
-**通过后再进入 S2。** 如果某个数学概念卡住，只做短时间回查，不在这里展开 Gonzalez 整章。
+**通过后再进入 S2。** 数学只由当前问题触发：如果某个概念卡住，只做 30–120 分钟回查，不在这里展开整章或另开“数学前置课程”。第一次黑盒可以先用；第二次又依赖同一个黑盒时，必须拆开一次。
 
 ---
 
