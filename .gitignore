@@ -1,0 +1,14 @@
+*.pdf
+__pycache__/
+*.zip
+.agents/
+.venv/
+1-3周出题.md
+教学方案.md
+每周任务_中文翻译.md
+每周任务.md
+数字图像处理_完整细化学习计划.docx
+数字图像处理_完整细化学习计划.md
+细化标准.md
+test.cpp
+test6.py
