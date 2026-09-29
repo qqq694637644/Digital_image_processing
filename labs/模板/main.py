@@ -1,4 +1,4 @@
-from src.image_inspector2 import main
+from src.image_inspector import main
 
 
 if __name__ == "__main__":

@@ -13,3 +13,4 @@ __pycache__/
 test.cpp
 test6.py
 *.jpg
+*.png
