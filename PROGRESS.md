@@ -8,6 +8,21 @@
 
 - [ ] A00 Image Inspector / 实验框架
 
+### 学习记录
+
+#### 2026-09-30 — A00 Checkpoint 1–3
+
+- [x] 从命令行读取真实图片，并处理参数错误 / 图片读取失败。
+- [x] 检查图像基础信息：`shape`、`dtype`、`min`、`max`、`mean`、`std`。
+- [x] 当前真实图片观测：`shape=(919, 619, 3)`、`dtype=uint8`、`min=0`、`max=255`、`mean≈139.746`、`std≈74.565`。
+- [x] 对比 BGR、RGB、Gray 三种表示，并用 Matplotlib 可视化。
+- [x] 已确认 OpenCV/NumPy 图像布局为 `H × W × C`，数组像素访问是 `image[y, x]`。
+- [x] 已确认 `cv2.imread()` 返回的 3 通道顺序是 BGR；直接交给按 RGB 解释的 Matplotlib 会产生明显色偏，本质是 R/B 通道语义错位。
+- [x] 已理解 `image[:, :, 0]` 会取出单个通道，因此 shape 从 `(H, W, 3)` 变为 `(H, W)`。
+- [ ] Checkpoint 4：Histogram。下一次从三通道直方图开始，观察完整像素分布以及 0 / 255 附近是否存在集中现象。
+
+**当前状态：** A00 尚未完成；今天停在 Checkpoint 4 开始之前。
+
 ### Exit Gate
 
 - [ ] 能从命令行重复运行实验
